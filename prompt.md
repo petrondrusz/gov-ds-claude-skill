@@ -9,6 +9,289 @@ Always:
 
 ---
 
+## FIGMA DESIGN WORKFLOW
+
+### Figma kit structure
+Three libraries must be connected in Figma:
+- **gov-materials** — all UI components
+- **gov-templates** — page templates and layout organisms
+- **gov-icons** — icon library (Bootstrap Icons + complex gov icons)
+
+Three token collections inside the libraries:
+| Collection | Contents |
+|---|---|
+| **Primitives** | Raw hex/numeric base values |
+| **Color** | Full semantic color palette, supports Light/Dark mode |
+| **Size** | All spacing, typography, dimension tokens — responsive (Desktop/Mobile/Tablet modes) |
+
+### Frame setup
+Every template frame supports **Desktop / Mobile variable mode** — switch it and the layout auto-rearranges with correct viewports and spacing.
+
+Template frame structure:
+```
+Frame (Desktop | Mobile mode)
+├── Header      — full viewport width
+├── Page        — max-width: --templates-layout-page-limit-max (1200px)
+│   ├── Content — page content sections
+│   └── Sidebar — optional (left or right)
+└── Footer      — full viewport width
+```
+
+### Figma rules
+- Name all layers in **English**
+- Use HTML tag names where applicable (`section`, `header`, `footer`, `article`)
+- Never use auto-generated names (Frame 1, Group 2)
+- Do not modify top-level frame structure (Page, Sidebar/Left, Content, Sidebar/Right)
+- Use tokens for all margins and spacing — never hardcode px values
+- For max text content width use `width-max-4xl` token, not fixed `800px`
+- Use `componentSwap` token for `device` attribute — auto-switches component variants by mode
+- After every change, check the design in **mobile layout**
+- Use **Swap Library** function when upgrading to a new DS version
+
+---
+
+## BREAKPOINTS
+
+Mobile-first approach. Three main tiers:
+
+| Tier | Breakpoint | Range |
+|------|-----------|-------|
+| Mobile (XS) | `< 480px` | `max-width: 29.99em` |
+| Tablet (SM/MD) | `480px – 1023px` | `min-width: 30em` |
+| Desktop (LG+) | `≥ 1024px` | `min-width: 64em` |
+
+Additional component breakpoints (for `col-span-*` attributes):
+
+| Suffix | Activates at |
+|--------|-------------|
+| `col-span` | always (mobile first) |
+| `col-span-sm` | 480px |
+| `col-span-md` | 768px |
+| `col-span-lg` | 1024px |
+| `col-span-xl` | 1200px |
+
+Key thresholds:
+- **Two-column layout** switches column → row at **1024px**
+- **Header/Navigation** switches to horizontal at **768px**
+- **Wireframe starting point:** 320px (Extra Small)
+
+---
+
+## GRID SYSTEM
+
+**12-column grid** across all viewports.
+
+```html
+<gov-grid gap="xl">
+  <gov-grid-item col-span="12" col-span-md="7">Main content</gov-grid-item>
+  <gov-grid-item col-span="12" col-span-md="5">Sidebar</gov-grid-item>
+</gov-grid>
+```
+
+Grid gap values:
+
+| Value | Token | px |
+|-------|-------|----|
+| `s` | `--spacing-s` | 8px |
+| `m` | `--spacing-m` | 16px |
+| `l` | `--spacing-l` | 24px |
+| `xl` | `--spacing-xl` | 32px ← default in templates |
+| `2xl` | `--spacing-2xl` | 40px |
+| `3xl` | `--spacing-3xl` | 48px |
+
+---
+
+## LAYOUT & CONTAINER
+
+### Container (`<gov-container>`)
+- **Max-width:** `75rem` = **1200px** (tablet + desktop)
+- **Mobile max-width:** `40rem` = **640px**
+- **Horizontal padding:** `--templates-margin-l` → 16px mobile / 24px desktop
+- **Top padding:** `--templates-margin-l` → 16px mobile / 24px desktop
+- **Bottom padding:** `--templates-margin-8xl` → 100px mobile / 120px desktop
+
+### Layout variants (`<gov-layout>`)
+Five layout types:
+
+| Layout | Description |
+|--------|-------------|
+| **Single-column** | Most common. Content centered to `--content-width-max`. No sidebar. |
+| **Basic content** | Default block, `fill` width. Constrained per-section with max-width. |
+| **Grid** | 12-column grid within centered content area. |
+| **Two-column left sidebar** | Left sidebar (filters), right content fills remaining space. |
+| **Two-column right sidebar** | Right sidebar (ToC, secondary links), left content fills remaining space. |
+
+### Two-column dimensions
+- **Content column max-width:** `50rem` = **800px**
+- **Default sidebar width:** ~**312px** (computed: 1200px − 800px − 40px gap − 48px padding)
+- **Gap between content and sidebar:** `--templates-margin-l` = 24px desktop
+
+### Width-max tokens (text content constraining)
+
+| Token | Desktop | Mobile |
+|-------|---------|--------|
+| `--templates-width-max-xs` | 100px | 100px |
+| `--templates-width-max-s` | 200px | 200px |
+| `--templates-width-max-m` | 300px | 300px |
+| `--templates-width-max-l` | 400px | 400px |
+| `--templates-width-max-xl` | 500px | 500px |
+| `--templates-width-max-2xl` | 600px | 600px |
+| `--templates-width-max-3xl` | 700px | 700px |
+| `--templates-width-max-4xl` | **800px** ← default text | 800px |
+| `--templates-width-max-5xl` | 900px | 800px (capped) |
+| `--templates-width-max-6xl` | 1000px | 800px (capped) |
+| `--templates-width-max-7xl` | 1100px | 800px (capped) |
+| `--templates-width-max-8xl` | 1200px | 800px (capped) |
+
+Default text content area: `.gov-text-content { max-width: var(--templates-width-max-4xl) }` = 800px.
+
+---
+
+## SPACING TOKENS (ACTUAL VALUES)
+
+### Template spacing — `--templates-margin-*` (responsive)
+Used for section margins, page paddings, layout gaps.
+
+| Token | Mobile | Desktop |
+|-------|--------|---------|
+| `--templates-margin-s` | 6px | 8px |
+| `--templates-margin-m` | 12px | 16px |
+| `--templates-margin-l` | **16px** | **24px** |
+| `--templates-margin-xl` | 28px | 32px |
+| `--templates-margin-2xl` | 36px | 40px |
+| `--templates-margin-3xl` | **42px** | **48px** ← default section gap |
+| `--templates-margin-4xl` | 48px | 56px |
+| `--templates-margin-5xl` | 58px | 64px |
+| `--templates-margin-6xl` | 64px | 72px |
+| `--templates-margin-7xl` | 72px | 80px |
+| `--templates-margin-8xl` | **100px** | **120px** ← page bottom padding |
+| `--templates-margin-9xl` | 148px | 160px |
+
+### Component spacing — `--spacing-*` (same across all breakpoints)
+
+| Token | px |
+|-------|----|
+| `--spacing-2xs` | 2px |
+| `--spacing-xs` | 4px |
+| `--spacing-xs-nudge` | 6px |
+| `--spacing-s` | 8px |
+| `--spacing-s-nudge` | 12px |
+| `--spacing-m` | 16px |
+| `--spacing-m-nudge` | 20px |
+| `--spacing-l` | 24px |
+| `--spacing-xl` | 32px |
+| `--spacing-2xl` | 40px |
+| `--spacing-3xl` | 48px |
+| `--spacing-4xl` | 56px |
+| `--spacing-5xl` | 64px |
+| `--spacing-6xl` | 72px |
+| `--spacing-7xl` | 80px |
+| `--spacing-8xl` | 120px |
+
+---
+
+## COMPONENT HEIGHT TOKENS
+
+Interactive component heights (all breakpoints):
+
+| Token | px | Use |
+|-------|----|-----|
+| `--height-component-xs` | 24px | XS size |
+| `--height-component-s` | 32px | S size |
+| `--height-component-m` | **40px** | M size (default) |
+| `--height-component-l` | 48px | L size |
+| `--height-component-xl` | 56px | XL size |
+
+Line heights:
+
+| Token | px |
+|-------|----|
+| `--height-line-xs` | 18px |
+| `--height-line-s` | 21px |
+| `--height-line-m` | 24px |
+| `--height-line-l` | 27px |
+| `--height-line-xl` | 30px |
+| `--height-line-2xl` | 36px |
+| `--height-line-3xl` | 48px |
+
+---
+
+## ICON SIZE TOKENS
+
+| Token | px |
+|-------|----|
+| `--icon-size-xs` | 12px |
+| `--icon-size-s` | 14px |
+| `--icon-size-m` | 16px |
+| `--icon-size-l` | 18px |
+| `--icon-size-xl` | 20px |
+| `--icon-size-2xl` | 24px |
+| `--icon-size-3xl` | 32px |
+| `--icon-size-4xl` | 40px |
+| `--icon-size-5xl` | 48px |
+
+---
+
+## CORNER RADIUS TOKENS
+
+| Token | px |
+|-------|----|
+| `--corner-radius-none` | 0px |
+| `--corner-radius-2xs` | 2px |
+| `--corner-radius-xs` | 4px |
+| `--corner-radius-xs-nudge` | 6px |
+| `--corner-radius-s` | 8px |
+| `--corner-radius-s-nudge` | 12px |
+| `--corner-radius-m` | 16px |
+| `--corner-radius-m-nudge` | 20px |
+| `--corner-radius-l` | 24px |
+| `--corner-radius-xl` | 32px |
+| `--corner-radius-2xl` | 40px |
+
+---
+
+## TYPOGRAPHY — RESPONSIVE VALUES
+
+Font sizes change between mobile and desktop:
+
+| Token | Mobile | Desktop |
+|-------|--------|---------|
+| `body-xs` | 12px | 12px |
+| `body-s` | 14px | 14px |
+| `body-m` | 16px | 16px ← **default** |
+| `body-l` | 18px | 18px |
+| `body-xl` | 20px | 20px |
+| `headline-xs` | 16px | **18px** |
+| `headline-s` | 18px | **20px** |
+| `headline-m` | 22px | **24px** |
+| `headline-l` | 30px | **32px** |
+| `headline-xl` | 38px | **40px** |
+| `display-s` | 36px | **40px** |
+| `display-m` | 44px | **48px** |
+| `display-l` | 54px | **56px** |
+
+---
+
+## KEY NUMBERS AT A GLANCE
+
+| Spec | Value |
+|------|-------|
+| Grid columns | 12 |
+| Container max-width | **1200px** |
+| Content column (two-col) | **800px** |
+| Default sidebar width | **~312px** |
+| Two-column layout breakpoint | **1024px** |
+| Navigation breakpoint | **768px** |
+| Mobile design start | **320px** |
+| Default section gap | **48px** desktop / 42px mobile |
+| Page horizontal padding | **24px** desktop / 16px mobile |
+| Page bottom padding | **120px** desktop / 100px mobile |
+| Default component height (M) | **40px** |
+| Base font size | **16px** (1rem) |
+| Default grid gap (templates) | **32px** (`--spacing-xl`) |
+
+---
+
 ## OVERVIEW
 
 **Version:** 4.2.4 | **License:** EUPL v1.2 | **Contact:** design@dia.gov.cz
